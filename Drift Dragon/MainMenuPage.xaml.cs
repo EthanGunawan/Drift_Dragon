@@ -1,23 +1,149 @@
-﻿namespace Drift_Dragon;
+﻿using Drift_Dragon.BusinessLogic;
 
-public partial class MainMenuPage : ContentPage
+namespace Drift_Dragon
 {
-    int count = 0;
-
-    public MainMenuPage()
+    public partial class MainMenuPage : ContentPage
     {
-        InitializeComponent();
-    }
+        private readonly AdviceManager _adviceManager;
+        private List<Advice> _allTips = new();
+        private int _currentTipIndex = 0;
+        private System.Timers.Timer? _tipTimer;
 
-    private void OnCounterClicked(object? sender, EventArgs e)
-    {
-        count++;
+        public MainMenuPage()
+        {
+            InitializeComponent();
+            _adviceManager = new AdviceManager();
+        }
 
-        if (count == 1)
-            CounterBtn.Text = $"Clicked {count} time";
-        else
-            CounterBtn.Text = $"Clicked {count} times";
+        protected override async void OnAppearing()
+        {
+            base.OnAppearing();
+            await LoadAndTestTips();
+        }
 
-        SemanticScreenReader.Announce(CounterBtn.Text);
+        private async Task LoadAndTestTips()
+        {
+            TipLabel.Text = "Loading tips...";
+            StarButton.IsEnabled = false;
+
+            try
+            {
+                // Test 1: Check if file exists
+                TipLabel.Text = "Checking JSON files...";
+                await Task.Delay(500);
+
+                // Load advice from JSON
+                await _adviceManager.LoadFromJsonAsync();
+                _allTips = await _adviceManager.GetAllAsync();
+
+                // Debug: Show count
+                TipLabel.Text = $"Found {_allTips.Count} tips";
+                await Task.Delay(1000);
+
+                if (_allTips.Count > 0)
+                {
+                    TipLabel.Text = _allTips[0].Tip; // Show first tip immediately
+                    _currentTipIndex = 0;
+                    StarButton.IsEnabled = true;
+                    StartTipRotation();
+                }
+                else
+                {
+                    // FALLBACK: Hardcoded tips for testing
+                    await LoadFallbackTips();
+                }
+            }
+            catch (Exception ex)
+            {
+                TipLabel.Text = $"Error: {ex.Message}";
+                await LoadFallbackTips();
+            }
+        }
+
+        private async Task LoadFallbackTips()
+        {
+
+            TipLabel.Text = _allTips[0].Tip;
+            StarButton.IsEnabled = true;
+            StartTipRotation();
+        }
+
+        private void ShowCurrentTip()
+        {
+            if (_allTips.Count == 0) return;
+            
+            var currentTip = _allTips[_currentTipIndex];
+            TipLabel.Text = currentTip.Tip;
+            
+            // Update star button (simplified for debug)
+            StarButton.Text = _currentTipIndex % 2 == 0 ? "★" : "⭐";
+        }
+
+        private void StartTipRotation()
+        {
+            _tipTimer?.Stop();
+            _tipTimer?.Dispose();
+            
+            _tipTimer = new System.Timers.Timer(3000); // Faster for testing: 3 seconds
+            _tipTimer.Elapsed += (s, e) =>
+            {
+                _currentTipIndex = (_currentTipIndex + 1) % _allTips.Count;
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    ShowCurrentTip();
+                });
+            };
+            _tipTimer.Start();
+        }
+
+        private async void OnStarClicked(object sender, EventArgs e)
+        {
+            if (_allTips.Count == 0) return;
+    
+            var currentTipId = _allTips[_currentTipIndex].adviceID;
+    
+            // Check actual star state using AdviceManager
+            bool wasStarred = await _adviceManager.IsStarredAsync(currentTipId);
+    
+            // Toggle the star
+            await _adviceManager.ToggleStarAsync(currentTipId);
+    
+            // Update button visual
+            bool isNowStarred = await _adviceManager.IsStarredAsync(currentTipId);
+            StarButton.Text = isNowStarred ? "★" : "⭐";
+    
+            // Show correct alert based on NEW state
+            string message = isNowStarred ? "Tip is starred! ✨" : "Tip is unstarred.";
+            await DisplayAlert("Star Status", message, "OK");
+        }
+
+
+        // Navigation methods (simplified - create pages later)
+        private async void OnBreathingClicked(object sender, EventArgs e)
+        {
+            await DisplayAlert("Coming Soon", "Breathing Exercises page loading next!", "OK");
+        }
+
+        private async void OnMoodJournalClicked(object sender, EventArgs e)
+        {
+            await DisplayAlert("Coming Soon", "Mood Journal page loading next!", "OK");
+        }
+
+        private async void OnDashboardClicked(object sender, EventArgs e)
+        {
+            await DisplayAlert("Coming Soon", "Progress Dashboard page loading next!", "OK");
+        }
+
+        private async void OnListeningClicked(object sender, EventArgs e)
+        {
+            await DisplayAlert("Coming Soon", "Relaxing Listening page loading next!", "OK");
+        }
+
+        protected override void OnDisappearing()
+        {
+            base.OnDisappearing();
+            _tipTimer?.Stop();
+            _tipTimer?.Dispose();
+        }
     }
 }
