@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Drift_Dragon;
 
-public partial class BreathingExerciseLbraryPage : ContentPage
+public partial class BreathingExerciseLibraryPage : ContentPage
 {
-    public BreathingExerciseLbraryPage()
+    public BreathingExerciseLibraryPage()
     {
         InitializeComponent();
     }

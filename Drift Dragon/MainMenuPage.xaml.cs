@@ -1,10 +1,10 @@
 ﻿namespace Drift_Dragon;
 
-public partial class MainPage : ContentPage
+public partial class MainMenuPage : ContentPage
 {
     int count = 0;
 
-    public MainPage()
+    public MainMenuPage()
     {
         InitializeComponent();
     }

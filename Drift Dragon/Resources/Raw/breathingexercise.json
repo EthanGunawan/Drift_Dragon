@@ -1,0 +1,140 @@
+{
+  "BreathingExercises": [
+    {
+      "ExerciseID": 1,
+      "Name": "Box Breathing",
+      "Description": "A simple technique used to calm the mind and reduce stress by following equal counts of inhaling, holding, exhaling, and holding again.",
+      "Instructions": [
+        "1. Inhale through your nose for 4 seconds.",
+        "2. Hold your breath for 4 seconds.",
+        "3. Exhale through your mouth for 4 seconds.",
+        "4. Hold again for 4 seconds.",
+        "5. Repeat for 4–6 cycles."
+      ]
+    },
+    {
+      "ExerciseID": 2,
+      "Name": "4-7-8 Breathing",
+      "Description": "A relaxation breathing technique designed to help you release tension and prepare for sleep or relaxation.",
+      "Instructions": [
+        "1. Inhale quietly through your nose for 4 seconds.",
+        "2. Hold your breath for 7 seconds.",
+        "3. Exhale completely through your mouth for 8 seconds.",
+        "4. Repeat this cycle 4 times."
+      ]
+    },
+    {
+      "ExerciseID": 3,
+      "Name": "Diaphragmatic Breathing",
+      "Description": "Also called belly breathing, this exercise helps you use your diaphragm effectively and promotes deep, slow breaths.",
+      "Instructions": [
+        "1. Place one hand on your chest and one on your stomach.",
+        "2. Inhale deeply through your nose, letting your stomach rise while keeping your chest still.",
+        "3. Exhale through pursed lips, letting your stomach fall.",
+        "4. Continue for 5–10 minutes."
+      ]
+    },
+    {
+      "ExerciseID": 4,
+      "Name": "Alternate Nostril Breathing",
+      "Description": "A traditional yogic breathing practice that balances the mind and body by alternating breaths between nostrils.",
+      "Instructions": [
+        "1. Use your right thumb to close your right nostril.",
+        "2. Inhale through your left nostril.",
+        "3. Close the left nostril with your ring finger and exhale through the right.",
+        "4. Inhale through the right nostril.",
+        "5. Switch sides and exhale through the left.",
+        "6. Repeat for 5 minutes."
+      ]
+    },
+    {
+      "ExerciseID": 5,
+      "Name": "Pursed-Lip Breathing",
+      "Description": "This technique slows your breathing rate and helps release trapped air, improving oxygen exchange.",
+      "Instructions": [
+        "1. Inhale gently through your nose for 2 seconds.",
+        "2. Purse your lips as if whistling.",
+        "3. Exhale slowly through your pursed lips for 4 seconds.",
+        "4. Focus on extending your exhale and continue for several minutes."
+      ]
+    },
+    {
+      "ExerciseID": 6,
+      "Name": "Resonance Breathing",
+      "Description": "A rhythmic breathing exercise that aligns your breathing rate with your heart rate to promote calm and focus.",
+      "Instructions": [
+        "1. Inhale through your nose for 5.5 seconds.",
+        "2. Exhale through your mouth for 5.5 seconds.",
+        "3. Maintain this steady rhythm for 10–15 minutes."
+      ]
+    },
+    {
+      "ExerciseID": 7,
+      "Name": "Mindful Breathing",
+      "Description": "Focuses your attention on each breath to quiet mental noise and reduce stress.",
+      "Instructions": [
+        "1. Sit comfortably and close your eyes.",
+        "2. Take a slow, deep breath through your nose and notice the sensation.",
+        "3. Exhale gently through your mouth, staying aware of your breath leaving your body.",
+        "4. If your mind wanders, gently return focus to the rhythm of your breathing.",
+        "5. Continue for 5–10 minutes."
+      ]
+    },
+    {
+      "ExerciseID": 8,
+      "Name": "Lion’s Breath",
+      "Description": "An energizing technique that helps release tension from the face and chest while promoting emotional release.",
+      "Instructions": [
+        "1. Sit tall and take a deep inhale through your nose.",
+        "2. Open your mouth wide, stick out your tongue, and exhale forcefully while making a 'ha' sound.",
+        "3. Relax your face and breathe normally.",
+        "4. Repeat this cycle 5–7 times."
+      ]
+    },
+    {
+      "ExerciseID": 9,
+      "Name": "Ocean Breathing (Ujjayi Pranayama)",
+      "Description": "A yoga breathing method producing a gentle ocean-like sound that calms the mind and deepens focus.",
+      "Instructions": [
+        "1. Close your mouth and inhale slowly through your nose.",
+        "2. Slightly constrict the back of your throat to create a soft, ocean-like sound.",
+        "3. Exhale through your nose while maintaining the same gentle constriction.",
+        "4. Keep your breath steady and smooth for 5–10 minutes."
+      ]
+    },
+    {
+      "ExerciseID": 10,
+      "Name": "Sitali Breathing (Cooling Breath)",
+      "Description": "A cooling yoga technique used to refresh the body and relax the nervous system.",
+      "Instructions": [
+        "1. Sit comfortably and roll your tongue into a tube shape (or place the tip between your lips if unable).",
+        "2. Inhale slowly through your curled tongue or lips, feeling the cooling sensation.",
+        "3. Close your mouth and exhale gently through your nose.",
+        "4. Repeat for 2–5 minutes."
+      ]
+    },
+    {
+      "ExerciseID": 11,
+      "Name": "3-3-6 Breathing",
+      "Description": "A simple breath ratio where exhaling takes twice as long as inhaling, triggering relaxation.",
+      "Instructions": [
+        "1. Inhale gently through your nose for 3 seconds.",
+        "2. Hold your breath for 3 seconds.",
+        "3. Exhale slowly through your mouth for 6 seconds.",
+        "4. Repeat for 5–10 cycles."
+      ]
+    },
+    {
+      "ExerciseID": 12,
+      "Name": "Counting Breaths Meditation",
+      "Description": "A mindful exercise that uses silent counting to maintain focus and reduce anxiety.",
+      "Instructions": [
+        "1. Sit comfortably and close your eyes.",
+        "2. Inhale and mentally count 'one'.",
+        "3. Exhale and count 'two'.",
+        "4. Continue counting each inhale and exhale up to ten, then start again at one.",
+        "5. If you lose track, simply refocus and begin counting from one."
+      ]
+    }
+  ]
+}
