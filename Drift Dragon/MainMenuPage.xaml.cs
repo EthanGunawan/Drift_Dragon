@@ -118,11 +118,12 @@ namespace Drift_Dragon
         }
 
 
-        // Navigation methods (simplified - create pages later)
+        // Navigation methods
         private async void OnBreathingClicked(object sender, EventArgs e)
         {
-            await DisplayAlert("Coming Soon", "Breathing Exercises page loading next!", "OK");
+            await Navigation.PushAsync(new BreathingExerciseLibraryPage());
         }
+
 
         private async void OnMoodJournalClicked(object sender, EventArgs e)
         {

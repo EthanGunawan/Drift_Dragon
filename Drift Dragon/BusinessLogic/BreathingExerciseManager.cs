@@ -10,14 +10,39 @@ namespace Drift_Dragon.BusinessLogic
 
         public async Task LoadFromJsonAsync()
         {
-            var wrapperJson = await JsonDataService.LoadJsonAsync<Dictionary<string, object>>("breathingexercises.json");
-            if (wrapperJson?.ContainsKey("BreathingExercises") == true)
+            try
             {
-                var exercisesJson = JsonSerializer.Serialize(wrapperJson["BreathingExercises"]);
-                var data = JsonSerializer.Deserialize<List<BreathingExercise>>(exercisesJson, 
-                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                if (data != null)
-                    _exercises = data;
+                // SIMPLIFIED: Load the wrapper first
+                var wrapper = await JsonDataService.LoadJsonAsync<Dictionary<string, JsonElement>>("breathingexercise.json");
+                
+                if (wrapper != null && wrapper.TryGetValue("BreathingExercises", out var exercisesElement))
+                {
+                    // Deserialize the array directly
+                    var data = JsonSerializer.Deserialize<List<BreathingExercise>>(
+                        exercisesElement.GetRawText(),
+                        new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    
+                    if (data != null)
+                    {
+                        _exercises = data;
+                        System.Diagnostics.Debug.WriteLine($"✅ Loaded {_exercises.Count} exercises");
+                        return;
+                    }
+                }
+                
+                System.Diagnostics.Debug.WriteLine("❌ Failed to parse breathingexercises.json");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"❌ JSON Error: {ex.Message}");
+            }
+            
+            // FALLBACK: Load as simple array if wrapper fails
+            var fallback = await JsonDataService.LoadJsonAsync<List<BreathingExercise>>("breathingexercises.json");
+            if (fallback != null)
+            {
+                _exercises = fallback;
+                System.Diagnostics.Debug.WriteLine($"✅ Fallback loaded {_exercises.Count} exercises");
             }
         }
 
@@ -41,7 +66,7 @@ namespace Drift_Dragon.BusinessLogic
 
         public Task<List<BreathingExercise>> GetTopUsedAsync(int count = 5) 
         {
-            // Simple bubble sort by usage count
+            // Simple bubble sort by usage count (unchanged)
             var indexedExercises = new List<(BreathingExercise exercise, int usage, int index)>();
             for (int i = 0; i < _exercises.Count; i++)
             {
@@ -49,7 +74,6 @@ namespace Drift_Dragon.BusinessLogic
                 indexedExercises.Add((_exercises[i], usage, i));
             }
 
-            // Bubble sort by usage (descending)
             for (int i = 0; i < indexedExercises.Count; i++)
             {
                 for (int j = 0; j < indexedExercises.Count - 1; j++)
