@@ -1,0 +1,6 @@
+namespace Drift_Dragon.BusinessLogic;
+
+public class BreathingExerciseManager
+{
+    
+}
