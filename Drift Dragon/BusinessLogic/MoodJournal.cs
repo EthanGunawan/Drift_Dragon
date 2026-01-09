@@ -1,9 +1,12 @@
-namespace Drift_Dragon.BusinessLogic;
+using System;
 
-public class MoodJournal
+namespace Drift_Dragon.BusinessLogic
 {
-    public int MoodJournalID { get; set; }
-    public DateTime Date { get; set; }
-    public Mood Mood { get; set; }
-    public string Reflection { get; set; }
+    public class MoodJournal
+    {
+        public int MoodJournalID { get; set; }
+        public DateTime Date { get; set; }
+        public Mood Mood { get; set; }
+        public string Reflection { get; set; } = string.Empty;
+    }
 }

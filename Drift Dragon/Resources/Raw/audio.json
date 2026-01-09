@@ -1,0 +1,86 @@
+[
+  {
+    "RelaxingAudioID": 1,
+    "Title": "Ocean Waves - 10 Hours",
+    "AudioUrl": "https://www.youtube.com/watch?v=WHPEKLQID4U",
+    "Duration": "10:00",
+    "Category": "Nature"
+  },
+  {
+    "RelaxingAudioID": 2,
+    "Title": "Rain Sounds for Sleeping",
+    "AudioUrl": "https://www.youtube.com/watch?v=ca02mjqRDDI",
+    "Duration": "8:00",
+    "Category": "Nature"
+  },
+  {
+    "RelaxingAudioID": 3,
+    "Title": "Gentle Rain on Leaves",
+    "AudioUrl": "https://www.youtube.com/watch?v=Ix7jCfjAFEg",
+    "Duration": "10:00",
+    "Category": "Nature"
+  },
+  {
+    "RelaxingAudioID": 4,
+    "Title": "Relaxing Piano Music",
+    "AudioUrl": "https://www.youtube.com/watch?v=3NycM9lYdRI",
+    "Duration": "3:36",
+    "Category": "Instrumental"
+  },
+  {
+    "RelaxingAudioID": 5,
+    "Title": "Acoustic Guitar Sleep Music",
+    "AudioUrl": "https://www.youtube.com/watch?v=SkogDQkeGVs",
+    "Duration": "3:01",
+    "Category": "Instrumental"
+  },
+  {
+    "RelaxingAudioID": 6,
+    "Title": "Native American Flute",
+    "AudioUrl": "https://www.youtube.com/watch?v=dr2VyUvzrwI",
+    "Duration": "9:09",
+    "Category": "Instrumental"
+  },
+  {
+    "RelaxingAudioID": 7,
+    "Title": "Calm River Sounds",
+    "AudioUrl": "https://www.youtube.com/watch?v=nE_XAauwu1I",
+    "Duration": "10:00",
+    "Category": "Nature"
+  },
+  {
+    "RelaxingAudioID": 8,
+    "Title": "Peaceful Birds Singing",
+    "AudioUrl": "https://www.youtube.com/watch?v=FMrtSHAAPhM",
+    "Duration": "3:05",
+    "Category": "Nature"
+  },
+  {
+    "RelaxingAudioID": 9,
+    "Title": "Deep Sleep Ambient Music",
+    "AudioUrl": "https://www.youtube.com/watch?v=T8yEdNx4dB0",
+    "Duration": "3:05",
+    "Category": "Ambient"
+  },
+  {
+    "RelaxingAudioID": 10,
+    "Title": "Peaceful Harp Music",
+    "AudioUrl": "https://www.youtube.com/watch?v=muKqSWnFr6M",
+    "Duration": "8:05",
+    "Category": "Instrumental"
+  },
+  {
+    "RelaxingAudioID": 11,
+    "Title": "Crackling Fireplace 8 Hours",
+    "AudioUrl": "https://www.youtube.com/watch?v=1RcVIuZ8Wdk",
+    "Duration": "8:03",
+    "Category": "Nature"
+  },
+  {
+    "RelaxingAudioID": 12,
+    "Title": "Space Ambient Music",
+    "AudioUrl": "https://www.youtube.com/watch?v=ztVV54sPOns",
+    "Duration": "2:56",
+    "Category": "Ambient"
+  }
+]

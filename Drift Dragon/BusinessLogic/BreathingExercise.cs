@@ -1,9 +1,10 @@
-namespace Drift_Dragon.BusinessLogic;
-
-public class BreathingExercise
+namespace Drift_Dragon.BusinessLogic
 {
-    public int BreathingExerciseID { get; set; }
-    public string Name { get; set; }
-    public string Description { get; set; }
-    public string Instructions { get; set; }
+    public class BreathingExercise
+    {
+        public int BreathingExerciseID { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public string Instructions { get; set; } = string.Empty;
+    }
 }
