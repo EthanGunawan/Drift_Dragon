@@ -10,7 +10,7 @@ namespace Drift_Dragon.BusinessLogic
         {
             try
             {
-                // FIX: Remove "Raw/" - MAUI handles Resources/Raw automatically
+                
                 using var stream = await FileSystem.OpenAppPackageFileAsync(filename);
                 using var reader = new StreamReader(stream);
                 var json = await reader.ReadToEndAsync();

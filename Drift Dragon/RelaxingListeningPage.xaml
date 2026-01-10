@@ -1,9 +1,116 @@
-<?xml version="1.0" encoding="utf-8"?>
-
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="Drift_Dragon.RelaxingListeningPage">
-    <ContentPage.Content>
+             x:Class="Drift_Dragon.RelaxingListeningPage"
+             Title="🎵 Relaxing Listening">
+
+    <Grid RowDefinitions="Auto,*,Auto" Padding="25">
         
-    </ContentPage.Content>
+        <!-- Header -->
+        <Label Grid.Row="0"
+               Text="🎵 Relaxing Listening"
+               FontSize="28"
+               FontAttributes="Bold"
+               HorizontalOptions="Center"
+               Margin="0,20,0,30"/>
+
+        <!-- Audio Cards -->
+        <CollectionView Grid.Row="1" 
+                        x:Name="AudioCollectionView"
+                        RemainingItemsThreshold="3">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <SwipeView Margin="5">
+                        <SwipeView.RightItems>
+                            <SwipeItems>
+                                <SwipeItem Text="▶️ Play"
+                                           BackgroundColor="#27AE60"
+                                           Invoked="OnPlayTrack"/>
+                            </SwipeItems>
+                        </SwipeView.RightItems>
+                        <Border Stroke="#E9ECEF"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 20"
+                                BackgroundColor="White"
+                                Padding="20"
+                                Margin="5">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <!-- Audio Info WITH LOGO -->
+                                <VerticalStackLayout Grid.Column="0" Spacing="8">
+                                    <!-- DRIFT DRAGON LOGO -->
+                                    <Image Source="drift_dragon.jpg"
+                                           HeightRequest="50"
+                                           WidthRequest="50"
+                                           HorizontalOptions="Center"
+                                           Margin="0,0,0,8"/>
+                                    
+                                    <Label Text="{Binding Title}" 
+                                           FontSize="20" 
+                                           FontAttributes="Bold"
+                                           TextColor="#2C3E50"/>
+                                    <Label Text="{Binding Category}" 
+                                           FontSize="14"
+                                           TextColor="#4A90E2"
+                                           FontAttributes="Italic"/>
+                                    <Label Text="{Binding Description}" 
+                                           FontSize="14"
+                                           TextColor="#7F8C8D"
+                                           LineBreakMode="WordWrap"
+                                           MaxLines="2"/>
+                                    <Label Text="{Binding Duration}" 
+                                           FontSize="12"
+                                           TextColor="#95A5A6"/>
+                                </VerticalStackLayout>
+                                
+                                <!-- Play Button -->
+                                <Button Grid.Column="1"
+                                        Text="▶️"
+                                        BackgroundColor="#4A90E2"
+                                        TextColor="White"
+                                        FontSize="24"
+                                        WidthRequest="60"
+                                        HeightRequest="60"
+                                        CornerRadius="30"
+                                        Clicked="OnPlayTrack"/>
+                            </Grid>
+                        </Border>
+                    </SwipeView>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Now Playing Bar -->
+        <Grid Grid.Row="2" Margin="0,20">
+            <Border Stroke="#34495E"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 25"
+                    BackgroundColor="#2C3E50"
+                    Padding="20">
+                <Grid ColumnDefinitions="Auto,*,Auto">
+                    <Label Grid.Column="0"
+                           x:Name="NowPlayingLabel"
+                           Text="Nothing playing"
+                           TextColor="White"
+                           FontSize="14"
+                           VerticalOptions="Center"/>
+                    <Label Grid.Column="1"
+                           x:Name="CurrentTrackLabel"
+                           Text="--"
+                           TextColor="White"
+                           FontAttributes="Bold"
+                           FontSize="16"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"/>
+                    <StackLayout Grid.Column="2" Orientation="Horizontal" HorizontalOptions="End">
+                        <Button x:Name="PlayPauseButton" 
+                                Text="▶️"
+                                BackgroundColor="Transparent"
+                                TextColor="White"
+                                FontSize="20"
+                                Clicked="OnPlayPause"/>
+                    </StackLayout>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
 </ContentPage>

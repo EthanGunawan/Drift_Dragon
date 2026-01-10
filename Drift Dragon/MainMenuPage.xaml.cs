@@ -137,8 +137,10 @@ namespace Drift_Dragon
 
         private async void OnListeningClicked(object sender, EventArgs e)
         {
-            await DisplayAlert("Coming Soon", "Relaxing Listening page loading next!", "OK");
+            // Navigate to Relaxing Listening page
+            await Navigation.PushAsync(new RelaxingListeningPage());
         }
+
 
         protected override void OnDisappearing()
         {

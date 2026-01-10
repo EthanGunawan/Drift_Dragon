@@ -14,6 +14,10 @@
         Title="Breathing Exercises"
         ContentTemplate="{DataTemplate local:BreathingExerciseLibraryPage}"
         Route="BreathingExercisesPage" />
+    <ShellContent
+        Title="Relaxing Listening"
+        ContentTemplate="{DataTemplate local:RelaxingListeningPage}"
+        Route="RelaxingListeningPage" />
 
 
 </Shell>
