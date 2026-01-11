@@ -143,6 +143,12 @@ namespace Drift_Dragon
             // Navigate to Relaxing Listening page
             await Navigation.PushAsync(new RelaxingListeningPage());
         }
+        private async void OnBackToTitleClicked(object sender, EventArgs e)
+        {
+            // Replace the whole navigation stack with a new TitlePage
+            Application.Current.MainPage = new NavigationPage(new TitlePage());
+        }
+
 
 
         protected override void OnDisappearing()

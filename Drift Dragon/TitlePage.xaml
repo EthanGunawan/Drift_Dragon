@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Drift_Dragon.TitlePage"
+             BackgroundColor="#0B1E35">
+
+    <!-- Tap anywhere to continue -->
+    <Grid x:Name="RootGrid">
+        <Grid.GestureRecognizers>
+            <TapGestureRecognizer Tapped="OnPageTapped" NumberOfTapsRequired="1" />
+        </Grid.GestureRecognizers>
+
+        <VerticalStackLayout Spacing="25"
+                             HorizontalOptions="Center"
+                             VerticalOptions="Center">
+
+            <!-- App logo -->
+            <Image Source="drift_dragon.jpg"
+                   WidthRequest="220"
+                   HeightRequest="220"
+                   HorizontalOptions="Center" />
+
+            <!-- App name -->
+            <Label Text="Drift Dragon"
+                   FontSize="40"
+                   FontAttributes="Bold"
+                   TextColor="White"
+                   HorizontalOptions="Center" />
+
+            <!-- Tagline -->
+            <Label Text="listen, log, breathe... Release your stress."
+                   FontSize="18"
+                   TextColor="#D0E6FF"
+                   HorizontalTextAlignment="Center"
+                   Margin="20,0" />
+
+        </VerticalStackLayout>
+
+        <!-- Tap hint at bottom -->
+        <Label Text="Tap anywhere to continue"
+               FontSize="14"
+               TextColor="#7FA6FF"
+               HorizontalOptions="Center"
+               VerticalOptions="End"
+               Margin="0,0,0,40" />
+    </Grid>
+</ContentPage>
