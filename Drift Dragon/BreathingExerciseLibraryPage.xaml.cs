@@ -1,4 +1,10 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Drift_Dragon.BusinessLogic;
+using Microsoft.Maui.Controls;
+using Microsoft.Maui.Devices;
+using Microsoft.Maui.Graphics;
 
 namespace Drift_Dragon
 {

@@ -1,4 +1,9 @@
-﻿using Drift_Dragon.BusinessLogic;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Drift_Dragon.BusinessLogic;
+using Microsoft.Maui.ApplicationModel;
+using Microsoft.Maui.Controls;
 
 namespace Drift_Dragon
 {
@@ -130,7 +135,7 @@ namespace Drift_Dragon
 
         private async void OnDashboardClicked(object sender, EventArgs e)
         {
-            await DisplayAlert("Coming Soon", "Progress Dashboard page loading next!", "OK");
+            await Navigation.PushAsync(new ProgressDashboardPage());
         }
 
         private async void OnListeningClicked(object sender, EventArgs e)

@@ -1,4 +1,6 @@
-﻿namespace Drift_Dragon;
+﻿using Microsoft.Maui.Controls;
+
+namespace Drift_Dragon;
 
 public partial class App : Application
 {

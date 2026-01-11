@@ -1,9 +1,159 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="Drift_Dragon.ProgressDashboardPage">
-    <ContentPage.Content>
-        
-    </ContentPage.Content>
+             xmlns:global="clr-namespace:"
+             x:Class="Drift_Dragon.ProgressDashboardPage"
+             Title="📊 Progress Dashboard"
+             BackgroundColor="#F8F9FA">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="25" Padding="25">
+            
+            <!-- HEADER -->
+            <Label Text="📊 Your Progress" 
+                   FontSize="32" 
+                   FontAttributes="Bold" 
+                   HorizontalOptions="Center"
+                   Margin="0,20,0,10"/>
+
+            <!-- WEEKLY MOOD TREND LINE GRAPH -->
+            <Border BackgroundColor="White" 
+                   Padding="20">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="Mood Trends This Week" 
+                           FontSize="20" 
+                           FontAttributes="Bold"/>
+                    
+                    <!-- Custom Canvas for Line Graph -->
+                    <GraphicsView x:Name="MoodTrendGraph" 
+                                  HeightRequest="200" 
+                                  BackgroundColor="#F8F9FA">
+                        <GraphicsView.Drawable>
+                            <global:MoodGraphDrawable />
+                        </GraphicsView.Drawable>
+                    </GraphicsView>
+                    
+                    <Label x:Name="MoodTrendLabel" 
+                           Text="Loading..." 
+                           FontSize="16" 
+                           HorizontalOptions="Center"
+                           TextColor="#4A90E2"/>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- STREAK COUNTER -->
+            <Border BackgroundColor="#E8F5E8" 
+                    
+                   Padding="25">
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="20">
+                    <VerticalStackLayout>
+                        <Label Text="🔥 Current Streak" 
+                               FontSize="18" 
+                               FontAttributes="Bold"/>
+                        <Label x:Name="StreakLabel" 
+                               Text="0 days" 
+                               FontSize="36" 
+                               FontAttributes="Bold"
+                               TextColor="#27AE60"/>
+                    </VerticalStackLayout>
+                    <Label Grid.Column="1" 
+                           Text="📅" 
+                           FontSize="64" 
+                           VerticalOptions="Center"/>
+                </Grid>
+            </Border>
+
+            <!-- TOP 5 BREATHING EXERCISES -->
+            <VerticalStackLayout>
+                <Label Text="🫁 Top Breathing Exercises" 
+                       FontSize="20" 
+                       FontAttributes="Bold" 
+                       Margin="0,0,0,10"/>
+                
+                <CollectionView x:Name="TopBreathingView" 
+                               HeightRequest="150"
+                               ItemSizingStrategy="MeasureFirstItem">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Border BackgroundColor="#E3F2FD" 
+                                    Stroke="#BBDEFB"
+                                    StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 15"
+                                    Padding="15" 
+                                    Margin="5">
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                                   
+                                    <Label Grid.Column="0" 
+                                           Text="{Binding Rank}" 
+                                           FontSize="20" 
+                                           FontAttributes="Bold"
+                                           TextColor="#4A90E2"
+                                           VerticalOptions="Center"/>
+
+                                    <VerticalStackLayout Grid.Column="1">
+                                        <Label Text="{Binding Name}" 
+                                               FontSize="16" 
+                                               FontAttributes="Bold"/>
+                                        <Label Text="{Binding UsageCount}" 
+                                               FontSize="14" 
+                                               TextColor="#7F8C8D"/>
+                                    </VerticalStackLayout>
+                                    <Label Grid.Column="2" 
+                                           Text="🫁" 
+                                           FontSize="24"
+                                           VerticalOptions="Center"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+
+            <!-- TOP 5 AUDIO TRACKS -->
+            <VerticalStackLayout>
+                <Label Text="🎵 Top Audio Tracks" 
+                       FontSize="20" 
+                       FontAttributes="Bold" 
+                       Margin="0,0,0,10"/>
+                
+                <CollectionView x:Name="TopAudioView" 
+                               HeightRequest="150"
+                               ItemSizingStrategy="MeasureFirstItem">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Border BackgroundColor="#FFF3E0" 
+                                    Stroke="#FFCC80"
+                                    StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 15"
+                                    Padding="15" 
+                                    Margin="5">
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                                  
+                                    <Label Grid.Column="0" 
+                                           Text="{Binding Rank}" 
+                                           FontSize="20" 
+                                           FontAttributes="Bold"
+                                           TextColor="#4A90E2"
+                                           VerticalOptions="Center"/>
+
+                                    <VerticalStackLayout Grid.Column="1">
+                                        <Label Text="{Binding Title}" 
+                                               FontSize="16" 
+                                               FontAttributes="Bold"/>
+                                        <Label Text="{Binding UsageCount}" 
+                                               FontSize="14" 
+                                               TextColor="#7F8C8D"/>
+                                    </VerticalStackLayout>
+                                    <Label Grid.Column="2" 
+                                           Text="🎵" 
+                                           FontSize="24"
+                                           VerticalOptions="Center"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>
