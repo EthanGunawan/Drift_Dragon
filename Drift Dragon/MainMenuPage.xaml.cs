@@ -28,16 +28,13 @@ namespace Drift_Dragon
 
             try
             {
-                // Test 1: Check if file exists
-                TipLabel.Text = "Checking JSON files...";
                 await Task.Delay(500);
 
                 // Load advice from JSON
                 await _adviceManager.LoadFromJsonAsync();
                 _allTips = await _adviceManager.GetAllAsync();
 
-                // Debug: Show count
-                TipLabel.Text = $"Found {_allTips.Count} tips";
+                
                 await Task.Delay(1000);
 
                 if (_allTips.Count > 0)
@@ -127,8 +124,9 @@ namespace Drift_Dragon
 
         private async void OnMoodJournalClicked(object sender, EventArgs e)
         {
-            await DisplayAlert("Coming Soon", "Mood Journal page loading next!", "OK");
+            await Navigation.PushAsync(new MoodJournalPage());
         }
+
 
         private async void OnDashboardClicked(object sender, EventArgs e)
         {

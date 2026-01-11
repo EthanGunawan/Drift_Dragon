@@ -1,9 +1,69 @@
-<?xml version="1.0" encoding="utf-8"?>
-
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="Drift_Dragon.MoodJournalPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="Drift_Dragon.MoodJournalPage">
-    <ContentPage.Content>
-        
-    </ContentPage.Content>
+             Title="Mood Journal 🧠"
+             BackgroundColor="#F8F9FA">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="20" Padding="25">
+            
+            <!-- Today's Entry -->
+            <Border Stroke="#E9ECEF" StrokeThickness="1" StrokeShape="RoundRectangle 20" 
+                    BackgroundColor="White" Padding="25">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="How are you feeling today?" 
+                           FontSize="22" FontAttributes="Bold" 
+                           HorizontalOptions="Center"/>
+                    
+                    <!-- Emoji Slider (0-4 matches your enum) -->
+                    <Slider x:Name="MoodSlider" Minimum="0" Maximum="4" 
+                            Value="2" ThumbColor="#4A90E2"/>
+                    
+                    <Label x:Name="MoodEmojiLabel" Text="😐" 
+                           FontSize="64" HorizontalOptions="Center"/>
+                    
+                    <!-- Reflection -->
+                    <Label Text="Reflect on your mood" FontSize="16" 
+                           Opacity="0.8" Margin="0,10,0,5"/>
+                    <Entry x:Name="ReflectionEntry" Placeholder="e.g. 'Feeling grateful for coffee ☕'" 
+                           HeightRequest="100" TextColor="#495057"/>
+
+                    <Button x:Name="SaveMoodButton" Text="Save Today 💾" 
+                            BackgroundColor="#4A90E2" TextColor="White"
+                            CornerRadius="20" FontAttributes="Bold"
+                            Clicked="OnSaveMoodClicked"/>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- History -->
+            <Label Text="Your Recent Moods" FontSize="20" FontAttributes="Bold"/>
+            
+            <CollectionView x:Name="MoodHistoryCollectionView" 
+                           RemainingItemsThreshold="3">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <SwipeView Margin="5">
+                            <Border Stroke="#E9ECEF" StrokeThickness="1" 
+                                    StrokeShape="RoundRectangle 15" BackgroundColor="White" Padding="20">
+                                <Grid ColumnDefinitions="60,*,Auto" ColumnSpacing="15">
+                                    <Label Grid.Column="0" Text="{Binding Emoji}" 
+                                           FontSize="36" VerticalOptions="Center"/>
+                                    <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                        <Label Text="{Binding Reflection}" 
+                                               FontSize="16" FontAttributes="Bold"/>
+                                        <Label Text="{Binding Date, StringFormat='{0:MMM dd, yyyy}'}" 
+                                               FontSize="14" TextColor="#6C757D"/>
+                                    </VerticalStackLayout>
+                                    <Label Grid.Column="2" Text="{Binding MoodScore}" 
+                                           FontSize="18" FontAttributes="Bold" 
+                                           VerticalOptions="Center"/>
+                                </Grid>
+                            </Border>
+                        </SwipeView>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

@@ -5,8 +5,8 @@ namespace Drift_Dragon.BusinessLogic
 {
     public class MoodJournalManager
     {
-        private List<MoodJournal> _journals = new();
-        private int _nextId = 1;
+        private static List<MoodJournal> _journals = new();  // static
+        private static int _nextId = 1; 
 
         public async Task AddEntryAsync(Mood mood, string reflection = "")
         {
