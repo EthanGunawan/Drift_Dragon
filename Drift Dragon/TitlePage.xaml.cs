@@ -9,11 +9,7 @@ public partial class TitlePage : ContentPage
 
     private async void OnPageTapped(object sender, TappedEventArgs e)
     {
-        // Simple fade effect
-        await RootGrid.FadeTo(0.0, 300, Easing.CubicOut);
-        // Navigate to your existing main menu
-        await Navigation.PushAsync(new MainMenuPage());
-        // Remove this page from the back stack
-        Navigation.RemovePage(this);
+        // Navigate to MainMenuPage by route
+        await Shell.Current.GoToAsync(nameof(MainMenuPage));
     }
 }

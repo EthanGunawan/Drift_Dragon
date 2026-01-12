@@ -2,7 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Drift_Dragon.TitlePage"
-             BackgroundColor="#0B1E35">
+             Title="">
 
     <!-- Tap anywhere to continue -->
     <Grid x:Name="RootGrid">
@@ -24,13 +24,13 @@
             <Label Text="Drift Dragon"
                    FontSize="40"
                    FontAttributes="Bold"
-                   TextColor="White"
+                   TextColor="Blue"
                    HorizontalOptions="Center" />
 
             <!-- Tagline -->
             <Label Text="listen, log, breathe... Release your stress."
                    FontSize="18"
-                   TextColor="#D0E6FF"
+                   TextColor="DodgerBlue"
                    HorizontalTextAlignment="Center"
                    Margin="20,0" />
 

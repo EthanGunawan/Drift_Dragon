@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Drift_Dragon.BusinessLogic;
-using Microsoft.Maui.ApplicationModel;
-using Microsoft.Maui.Controls;
+﻿using Drift_Dragon.BusinessLogic;
 
 namespace Drift_Dragon
 {
@@ -23,77 +18,60 @@ namespace Drift_Dragon
         protected override async void OnAppearing()
         {
             base.OnAppearing();
-            await LoadAndTestTips();
+            await LoadAndStartTips();
         }
 
-        private async Task LoadAndTestTips()
+        private async Task LoadAndStartTips()
         {
             TipLabel.Text = "Loading tips...";
             StarButton.IsEnabled = false;
 
             try
             {
-                await Task.Delay(500);
-
-                // Load advice from JSON
                 await _adviceManager.LoadFromJsonAsync();
                 _allTips = await _adviceManager.GetAllAsync();
 
-                
-                await Task.Delay(1000);
-
                 if (_allTips.Count > 0)
                 {
-                    TipLabel.Text = _allTips[0].Tip; // Show first tip immediately
                     _currentTipIndex = 0;
+                    ShowCurrentTip();
                     StarButton.IsEnabled = true;
                     StartTipRotation();
                 }
                 else
                 {
-                    // FALLBACK: Hardcoded tips for testing
-                    await LoadFallbackTips();
+                    TipLabel.Text = "No tips available.";
                 }
             }
             catch (Exception ex)
             {
                 TipLabel.Text = $"Error: {ex.Message}";
-                await LoadFallbackTips();
             }
-        }
-
-        private async Task LoadFallbackTips()
-        {
-
-            TipLabel.Text = _allTips[0].Tip;
-            StarButton.IsEnabled = true;
-            StartTipRotation();
         }
 
         private void ShowCurrentTip()
         {
             if (_allTips.Count == 0) return;
-            
+
             var currentTip = _allTips[_currentTipIndex];
             TipLabel.Text = currentTip.Tip;
-            
-            // Update star button (simplified for debug)
-            StarButton.Text = _currentTipIndex % 2 == 0 ? "★" : "⭐";
+
+            // Simple star visual (you can wire this to AdviceManager starred state later)
+            StarButton.Text = "⭐";
         }
 
         private void StartTipRotation()
         {
             _tipTimer?.Stop();
             _tipTimer?.Dispose();
-            
-            _tipTimer = new System.Timers.Timer(3000); // Faster for testing: 3 seconds
+
+            _tipTimer = new System.Timers.Timer(8000); // 8s between tips
             _tipTimer.Elapsed += (s, e) =>
             {
+                if (_allTips.Count == 0) return;
+
                 _currentTipIndex = (_currentTipIndex + 1) % _allTips.Count;
-                MainThread.BeginInvokeOnMainThread(() =>
-                {
-                    ShowCurrentTip();
-                });
+                MainThread.BeginInvokeOnMainThread(ShowCurrentTip);
             };
             _tipTimer.Start();
         }
@@ -101,37 +79,28 @@ namespace Drift_Dragon
         private async void OnStarClicked(object sender, EventArgs e)
         {
             if (_allTips.Count == 0) return;
-    
+
             var currentTipId = _allTips[_currentTipIndex].adviceID;
-    
-            // Check actual star state using AdviceManager
-            bool wasStarred = await _adviceManager.IsStarredAsync(currentTipId);
-    
-            // Toggle the star
+
+            // Toggle star in manager
             await _adviceManager.ToggleStarAsync(currentTipId);
-    
-            // Update button visual
-            bool isNowStarred = await _adviceManager.IsStarredAsync(currentTipId);
-            StarButton.Text = isNowStarred ? "★" : "⭐";
-    
-            // Show correct alert based on NEW state
-            string message = isNowStarred ? "Tip is starred! ✨" : "Tip is unstarred.";
-            await DisplayAlert("Star Status", message, "OK");
+            bool isStarred = await _adviceManager.IsStarredAsync(currentTipId);
+
+            StarButton.Text = isStarred ? "★" : "⭐";
+            await DisplayAlert("Star Status",
+                isStarred ? "Tip is starred! ✨" : "Tip is unstarred.",
+                "OK");
         }
 
-
-        // Navigation methods
         private async void OnBreathingClicked(object sender, EventArgs e)
         {
             await Navigation.PushAsync(new BreathingExerciseLibraryPage());
         }
 
-
         private async void OnMoodJournalClicked(object sender, EventArgs e)
         {
             await Navigation.PushAsync(new MoodJournalPage());
         }
-
 
         private async void OnDashboardClicked(object sender, EventArgs e)
         {
@@ -140,16 +109,8 @@ namespace Drift_Dragon
 
         private async void OnListeningClicked(object sender, EventArgs e)
         {
-            // Navigate to Relaxing Listening page
             await Navigation.PushAsync(new RelaxingListeningPage());
         }
-        private async void OnBackToTitleClicked(object sender, EventArgs e)
-        {
-            // Replace the whole navigation stack with a new TitlePage
-            Application.Current.MainPage = new NavigationPage(new TitlePage());
-        }
-
-
 
         protected override void OnDisappearing()
         {

@@ -5,11 +5,10 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:Drift_Dragon">
 
+    <!-- Start on TitlePage -->
     <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainMenuPage}"
-        Route="MainMenuPage" />
-   
-
+        Title="Drift Dragon"
+        ContentTemplate="{DataTemplate local:TitlePage}"
+        Route="TitlePage" />
 
 </Shell>
