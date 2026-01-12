@@ -11,32 +11,24 @@ namespace Drift_Dragon
     {
         private readonly RelaxingAudioManager _audioManager;
         private List<RelaxingAudio> _audioTracks = new();
-        private int _currentTrackIndex = -1;
 
         public RelaxingListeningPage()
         {
             InitializeComponent();
             _audioManager = new RelaxingAudioManager();
         }
-        
-        
+
+        protected override async void OnAppearing()
+        {
+            base.OnAppearing();
+            await LoadAudioTracks();
+        }
 
         protected override void OnDisappearing()
         {
             base.OnDisappearing();
-    
-            // CRASH FIX: Force CollectionView cleanup
             AudioCollectionView.ItemsSource = null;
-            GC.Collect(); // Force garbage collection
         }
-
-        protected override void OnAppearing()
-        {
-            base.OnAppearing();
-            // Rebind on return
-            LoadAudioTracks();
-        }
-
 
         private async Task LoadAudioTracks()
         {
@@ -55,7 +47,7 @@ namespace Drift_Dragon
         private async void OnPlayTrack(object sender, EventArgs e)
         {
             RelaxingAudio? track = null;
-            
+
             if (sender is SwipeItem swipeItem && swipeItem.BindingContext is RelaxingAudio audio1)
             {
                 track = audio1;
@@ -64,45 +56,19 @@ namespace Drift_Dragon
             {
                 track = audio2;
             }
-            
-            if (track != null)
-            {
-                _currentTrackIndex = _audioTracks.IndexOf(track);
-                await PlayYouTubeTrack(track);
-            }
-        }
 
-        private async Task PlayYouTubeTrack(RelaxingAudio track)
-        {
+            if (track == null || string.IsNullOrWhiteSpace(track.AudioUrl))
+                return;
+
             try
             {
                 // Open YouTube URL in external browser/app
                 await Browser.Default.OpenAsync(new Uri(track.AudioUrl), BrowserLaunchMode.SystemPreferred);
-                
-                // Update now playing
-                UpdateNowPlaying(track);
             }
             catch (Exception ex)
             {
                 await DisplayAlert("Error", $"Could not open {track.Title}: {ex.Message}", "OK");
             }
         }
-
-        private void UpdateNowPlaying(RelaxingAudio track)
-        {
-            NowPlayingLabel.Text = "Now Playing:";
-            CurrentTrackLabel.Text = track.Title;
-            PlayPauseButton.Text = "⏸️";
-        }
-
-        private async void OnPlayPause(object sender, EventArgs e)
-        {
-            if (_currentTrackIndex >= 0 && _currentTrackIndex < _audioTracks.Count)
-            {
-                var track = _audioTracks[_currentTrackIndex];
-                await PlayYouTubeTrack(track); // Re-open if paused
-            }
-        }
-        
     }
 }
