@@ -27,28 +27,22 @@ namespace Drift_Dragon
 
         private async Task LoadExercises()
         {
-            try
+            PositionLabel.Text = "Loading...";
+
+            await _exerciseManager.LoadFromJsonAsync();
+            _exercises = await _exerciseManager.GetAllAsync();
+
+            if (_exercises.Count == 0)
             {
-                PositionLabel.Text = "Loading...";
-                
-                await _exerciseManager.LoadFromJsonAsync();
-                _exercises = await _exerciseManager.GetAllAsync();
-                
-                if (_exercises.Count == 0)
-                {
-                    PositionLabel.Text = "No exercises found";
-                    return;
-                }
-                
-                ExercisesCarousel.ItemsSource = _exercises;
-                ExercisesCarousel.PositionChanged += ExercisesCarousel_PositionChanged;
-                UpdatePositionLabel();
+                PositionLabel.Text = "No exercises found";
+                return;
             }
-            catch (Exception ex)
-            {
-                PositionLabel.Text = $"Load failed: {ex.Message}";
-            }
+
+            ExercisesCarousel.ItemsSource = _exercises;
+            ExercisesCarousel.PositionChanged += ExercisesCarousel_PositionChanged;
+            UpdatePositionLabel();
         }
+
 
         private void ExercisesCarousel_PositionChanged(object sender, PositionChangedEventArgs e)
         {

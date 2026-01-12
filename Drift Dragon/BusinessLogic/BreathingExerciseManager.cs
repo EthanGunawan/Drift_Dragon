@@ -1,100 +1,92 @@
-using System;
 using System.Text.Json;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using Microsoft.Maui.Storage;
 
 namespace Drift_Dragon.BusinessLogic
 {
     public class BreathingExerciseManager
     {
-        private List<BreathingExercise> _exercises = new();
+        private readonly List<BreathingExercise> _exercises = new();
         private readonly Dictionary<int, int> _usageCounts = new();
+
+        private const string UsageFileName = "breathing_usage.json";
+
+        public BreathingExerciseManager()
+        {
+            _ = LoadUsageAsync();
+        }
 
         public async Task LoadFromJsonAsync()
         {
+            var data = await JsonDataService.LoadJsonAsync<List<BreathingExercise>>("breathingexercise.json");
+           
+
+            _exercises.Clear();
+            _exercises.AddRange(data);
+            
+        }
+
+
+        private async Task LoadUsageAsync()
+        {
             try
             {
-                // SIMPLIFIED: Load the wrapper first
-                var wrapper = await JsonDataService.LoadJsonAsync<Dictionary<string, JsonElement>>("breathingexercise.json");
-                
-                if (wrapper != null && wrapper.TryGetValue("BreathingExercises", out var exercisesElement))
-                {
-                    // Deserialize the array directly
-                    var data = JsonSerializer.Deserialize<List<BreathingExercise>>(
-                        exercisesElement.GetRawText(),
-                        new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                    
-                    if (data != null)
-                    {
-                        _exercises = data;
-                        System.Diagnostics.Debug.WriteLine($"✅ Loaded {_exercises.Count} exercises");
-                        return;
-                    }
-                }
-                
-                System.Diagnostics.Debug.WriteLine("❌ Failed to parse breathingexercises.json");
+                var path = Path.Combine(FileSystem.AppDataDirectory, UsageFileName);
+                if (!File.Exists(path))
+                    return;
+
+                var json = await File.ReadAllTextAsync(path);
+                var data = JsonSerializer.Deserialize<Dictionary<int, int>>(json);
+                if (data == null)
+                    return;
+
+                _usageCounts.Clear();
+                foreach (var kvp in data)
+                    _usageCounts[kvp.Key] = kvp.Value;
             }
-            catch (Exception ex)
+            catch
             {
-                System.Diagnostics.Debug.WriteLine($"❌ JSON Error: {ex.Message}");
-            }
-            
-            // FALLBACK: Load as simple array if wrapper fails
-            var fallback = await JsonDataService.LoadJsonAsync<List<BreathingExercise>>("breathingexercises.json");
-            if (fallback != null)
-            {
-                _exercises = fallback;
-                System.Diagnostics.Debug.WriteLine($"✅ Fallback loaded {_exercises.Count} exercises");
             }
         }
 
-        public Task<List<BreathingExercise>> GetAllAsync() => Task.FromResult(_exercises);
-        
-        public Task<BreathingExercise?> GetByIdAsync(int id) 
+        private async Task SaveUsageAsync()
         {
-            foreach (var exercise in _exercises)
+            try
             {
-                if (exercise.BreathingExerciseID == id)
-                    return Task.FromResult<BreathingExercise?>(exercise);
+                var path = Path.Combine(FileSystem.AppDataDirectory, UsageFileName);
+                var json = JsonSerializer.Serialize(_usageCounts);
+                await File.WriteAllTextAsync(path, json);
             }
-            return Task.FromResult<BreathingExercise?>(null);
+            catch
+            {
+            }
         }
 
-        public Task IncrementUsageAsync(int exerciseId)
+        public Task<List<BreathingExercise>> GetAllAsync() =>
+            Task.FromResult(_exercises.ToList());
+
+        public Task<BreathingExercise?> GetByIdAsync(int id)
         {
-            _usageCounts[exerciseId] = _usageCounts.ContainsKey(exerciseId) ? _usageCounts[exerciseId] + 1 : 1;
-            return Task.CompletedTask;
+            var exercise = _exercises.FirstOrDefault(e => e.BreathingExerciseID == id);
+            return Task.FromResult(exercise);
         }
 
-        public Task<List<BreathingExercise>> GetTopUsedAsync(int count = 5) 
+        public async Task IncrementUsageAsync(int exerciseId)
         {
-            // Simple bubble sort by usage count (unchanged)
-            var indexedExercises = new List<(BreathingExercise exercise, int usage, int index)>();
-            for (int i = 0; i < _exercises.Count; i++)
-            {
-                var usage = _usageCounts.ContainsKey(_exercises[i].BreathingExerciseID) ? _usageCounts[_exercises[i].BreathingExerciseID] : 0;
-                indexedExercises.Add((_exercises[i], usage, i));
-            }
+            _usageCounts[exerciseId] = _usageCounts.TryGetValue(exerciseId, out var c) ? c + 1 : 1;
+            await SaveUsageAsync();
+        }
 
-            for (int i = 0; i < indexedExercises.Count; i++)
-            {
-                for (int j = 0; j < indexedExercises.Count - 1; j++)
-                {
-                    if (indexedExercises[j].usage < indexedExercises[j + 1].usage)
-                    {
-                        var temp = indexedExercises[j];
-                        indexedExercises[j] = indexedExercises[j + 1];
-                        indexedExercises[j + 1] = temp;
-                    }
-                }
-            }
+        public int GetUsage(int exerciseId) =>
+            _usageCounts.TryGetValue(exerciseId, out var c) ? c : 0;
 
-            var topExercises = new List<BreathingExercise>();
-            for (int i = 0; i < Math.Min(count, indexedExercises.Count); i++)
-            {
-                topExercises.Add(indexedExercises[i].exercise);
-            }
-            return Task.FromResult(topExercises);
+        public Task<List<BreathingExercise>> GetTopUsedAsync(int count = 5)
+        {
+            var ordered = _exercises
+                .OrderByDescending(e => GetUsage(e.BreathingExerciseID))
+                .Take(count)
+                .ToList();
+
+            return Task.FromResult(ordered);
         }
     }
 }

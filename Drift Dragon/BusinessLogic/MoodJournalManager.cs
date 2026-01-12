@@ -1,13 +1,54 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Text.Json;
+using Microsoft.Maui.Storage;
 
 namespace Drift_Dragon.BusinessLogic
 {
     public class MoodJournalManager
     {
-        private static List<MoodJournal> _journals = new();  // static
-        private static int _nextId = 1; 
+        private static List<MoodJournal> _journals = new();
+        private static int _nextId = 1;
+        private const string MoodFileName = "mood_journals.json";
+
+        public MoodJournalManager()
+        {
+            _ = LoadAsync();
+        }
+
+        private async Task LoadAsync()
+        {
+            try
+            {
+                var path = Path.Combine(FileSystem.AppDataDirectory, MoodFileName);
+                if (!File.Exists(path))
+                    return;
+
+                var json = await File.ReadAllTextAsync(path);
+                var data = JsonSerializer.Deserialize<List<MoodJournal>>(json);
+
+                if (data == null)
+                    return;
+
+                _journals = data;
+                _nextId = _journals.Any() ? _journals.Max(j => j.MoodJournalID) + 1 : 1;
+            }
+            catch
+            {
+                // optional: log
+            }
+        }
+
+        private async Task SaveAsync()
+        {
+            try
+            {
+                var path = Path.Combine(FileSystem.AppDataDirectory, MoodFileName);
+                var json = JsonSerializer.Serialize(_journals);
+                await File.WriteAllTextAsync(path, json);
+            }
+            catch
+            {
+            }
+        }
 
         public async Task AddEntryAsync(Mood mood, string reflection = "")
         {
@@ -18,65 +59,54 @@ namespace Drift_Dragon.BusinessLogic
                 Mood = mood,
                 Reflection = reflection
             });
-            await Task.CompletedTask;
+
+            await SaveAsync();
         }
 
-        public Task<List<MoodJournal>> GetRecentAsync(int count = 10) 
+        public Task<List<MoodJournal>> GetRecentAsync(int count = 10)
         {
-            // Sort by date descending using bubble sort
-            for (int i = 0; i < _journals.Count; i++)
-            {
-                for (int j = 0; j < _journals.Count - 1; j++)
-                {
-                    if (_journals[j].Date < _journals[j + 1].Date)
-                    {
-                        var temp = _journals[j];
-                        _journals[j] = _journals[j + 1];
-                        _journals[j + 1] = temp;
-                    }
-                }
-            }
+            var recent = _journals
+                .OrderByDescending(j => j.Date)
+                .Take(count)
+                .ToList();
 
-            var recent = new List<MoodJournal>();
-            for (int i = 0; i < Math.Min(count, _journals.Count); i++)
-            {
-                recent.Add(_journals[i]);
-            }
             return Task.FromResult(recent);
         }
 
-        public Task<List<MoodJournal>> GetAllAsync() => Task.FromResult(_journals);
+        public Task<List<MoodJournal>> GetAllAsync() =>
+            Task.FromResult(_journals);
 
-        public Task<double> GetAverageMoodAsync() 
+        public Task<double> GetAverageMoodAsync()
         {
-            if (_journals.Count == 0) return Task.FromResult(2.0);
-            
-            double sum = 0;
-            foreach (var journal in _journals)
-            {
-                sum += (int)journal.Mood;
-            }
-            return Task.FromResult(sum / _journals.Count);
+            if (_journals.Count == 0)
+                return Task.FromResult(2.0); // neutral baseline
+
+            var avg = _journals.Average(j => (int)j.Mood);
+            return Task.FromResult(avg);
         }
 
         public Task<int> GetCurrentStreakAsync()
         {
-            if (_journals.Count == 0) return Task.FromResult(0);
-            
-            var today = DateTime.Today;
+            if (_journals.Count == 0)
+                return Task.FromResult(0);
+
+            var days = _journals
+                .Select(j => j.Date.Date)
+                .Distinct()
+                .OrderByDescending(d => d)
+                .ToList();
+
             var streak = 0;
-            
-            for (int i = 0; i < _journals.Count; i++)
+            var today = DateTime.Today;
+
+            foreach (var day in days)
             {
-                if (_journals[i].Date.Date == today.AddDays(-streak))
-                {
+                if (day == today.AddDays(-streak))
                     streak++;
-                }
                 else
-                {
                     break;
-                }
             }
+
             return Task.FromResult(streak);
         }
     }
