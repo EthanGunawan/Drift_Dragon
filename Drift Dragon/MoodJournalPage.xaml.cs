@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Drift_Dragon.BusinessLogic;
 using Microsoft.Maui.Controls;
 
@@ -32,15 +31,18 @@ namespace Drift_Dragon
         private void UpdateEmoji()
         {
             int moodValue = (int)MoodSlider.Value;
-            MoodEmojiLabel.Text = moodValue switch
-            {
-                0 => "😢",  // Terrible
-                1 => "🙁",  // Bad
-                2 => "😐",  // Ok
-                3 => "🙂",  // Good
-                4 => "😊",  // Great
-                _ => "😐"
-            };
+            if (moodValue == 0)
+                MoodEmojiLabel.Text = "😢";  // Terrible
+            else if (moodValue == 1)
+                MoodEmojiLabel.Text = "🙁";  // Bad
+            else if (moodValue == 2)
+                MoodEmojiLabel.Text = "😐";  // Ok
+            else if (moodValue == 3)
+                MoodEmojiLabel.Text = "🙂";  // Good
+            else if (moodValue == 4)
+                MoodEmojiLabel.Text = "😊";  // Great
+            else
+                MoodEmojiLabel.Text = "😐";
         }
 
         private async void OnSaveMoodClicked(object sender, EventArgs e)
@@ -76,47 +78,78 @@ namespace Drift_Dragon
         {
             _recentEntries = await _moodManager.GetRecentAsync(10);
 
-            MoodHistoryCollectionView.ItemsSource = _recentEntries
-                .Select(j => new
+            // Build a simple list for the CollectionView without LINQ
+            var items = new List<object>();
+            foreach (var j in _recentEntries)
+            {
+                items.Add(new
                 {
-                    j.MoodJournalID,
-                    j.Date,
-                    j.Reflection,
+                    MoodJournalID = j.MoodJournalID,
+                    Date = j.Date,
+                    Reflection = j.Reflection,
                     Emoji = GetEmoji(j.Mood),
-                    MoodScore = $"{(int)j.Mood}/4"
-                })
-                .ToList();
+                    MoodScore = ((int)j.Mood).ToString() + "/4"
+                });
+            }
+
+            MoodHistoryCollectionView.ItemsSource = items;
         }
 
-        private string GetEmoji(Mood mood) => mood switch
+        private string GetEmoji(Mood mood)
         {
-            Mood.Terrible => "😢",
-            Mood.Bad => "🙁",
-            Mood.Ok => "😐",
-            Mood.Good => "🙂",
-            Mood.Great => "😊",
-            _ => "😐"
-        };
+            if (mood == Mood.Terrible) return "😢";
+            if (mood == Mood.Bad)      return "🙁";
+            if (mood == Mood.Ok)       return "😐";
+            if (mood == Mood.Good)     return "🙂";
+            if (mood == Mood.Great)    return "😊";
+            return "😐";
+        }
 
         private void MoodHistoryCollectionView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var selected = e.CurrentSelection.FirstOrDefault();
+            // Get the selected anonymous object
+            object selected = null;
+            foreach (var item in e.CurrentSelection)
+            {
+                selected = item;
+                break;
+            }
+
             if (selected == null)
             {
                 _selectedEntryForEdit = null;
                 return;
             }
 
-            // Anonymous type: grab the ID via reflection
-            var idProp = selected.GetType().GetProperty("MoodJournalID");
+            // Read MoodJournalID from the anonymous object with reflection,
+            // but without LINQ or fancy helpers
+            var type = selected.GetType();
+            var idProp = type.GetProperty("MoodJournalID");
             if (idProp == null)
             {
                 _selectedEntryForEdit = null;
                 return;
             }
 
-            var id = (int)idProp.GetValue(selected)!;
-            _selectedEntryForEdit = _recentEntries.FirstOrDefault(x => x.MoodJournalID == id);
+            var value = idProp.GetValue(selected);
+            if (value == null)
+            {
+                _selectedEntryForEdit = null;
+                return;
+            }
+
+            int id = (int)value;
+
+            // Find the real MoodJournal in _recentEntries using a simple loop
+            _selectedEntryForEdit = null;
+            foreach (var j in _recentEntries)
+            {
+                if (j.MoodJournalID == id)
+                {
+                    _selectedEntryForEdit = j;
+                    break;
+                }
+            }
         }
 
         private void OnEditSelectedClicked(object sender, EventArgs e)
@@ -149,7 +182,7 @@ namespace Drift_Dragon
             await _moodManager.DeleteEntryAsync(_selectedEntryForEdit.MoodJournalID);
             _selectedEntryForEdit = null;
 
-            // Clear form back to neutral if it was showing that entry
+            // Clear form back to neutral
             MoodSlider.Value = 2;
             ReflectionEntry.Text = string.Empty;
             UpdateEmoji();

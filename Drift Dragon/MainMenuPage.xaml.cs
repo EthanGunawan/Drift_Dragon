@@ -56,7 +56,7 @@ namespace Drift_Dragon
             var currentTip = _allTips[_currentTipIndex];
             TipLabel.Text = currentTip.Tip;
 
-            // Simple star visual (you can wire this to AdviceManager starred state later)
+            
             StarButton.Text = "⭐";
         }
 
