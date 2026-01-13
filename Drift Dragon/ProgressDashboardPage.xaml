@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:global="clr-namespace:"
+             xmlns:skia="clr-namespace:SkiaSharp.Views.Maui.Controls;assembly=SkiaSharp.Views.Maui.Controls"
              x:Class="Drift_Dragon.ProgressDashboardPage"
              Title="📊 Progress Dashboard"
              BackgroundColor="#F8F9FA">
@@ -17,21 +17,17 @@
                    Margin="0,20,0,10"/>
 
             <!-- WEEKLY MOOD TREND LINE GRAPH -->
-            <Border BackgroundColor="White" 
-                   Padding="20">
+            <Border BackgroundColor="White" Padding="20">
                 <VerticalStackLayout Spacing="15">
                     <Label Text="Mood Trends This Week" 
                            FontSize="20" 
                            FontAttributes="Bold"/>
                     
-                    <!-- Custom Canvas for Line Graph -->
-                    <GraphicsView x:Name="MoodTrendGraph" 
-                                  HeightRequest="200" 
-                                  BackgroundColor="#F8F9FA">
-                        <GraphicsView.Drawable>
-                            <global:MoodGraphDrawable />
-                        </GraphicsView.Drawable>
-                    </GraphicsView>
+                    <!-- SkiaSharp Canvas for Line Graph -->
+                    <skia:SKCanvasView x:Name="MoodTrendGraph"
+                                       HeightRequest="200"
+                                       BackgroundColor="#F8F9FA"
+                                       PaintSurface="OnMoodGraphDraw" />
                     
                     <Label x:Name="MoodTrendLabel" 
                            Text="Loading..." 
@@ -42,9 +38,7 @@
             </Border>
 
             <!-- STREAK COUNTER -->
-            <Border BackgroundColor="#E8F5E8" 
-                    
-                   Padding="25">
+            <Border BackgroundColor="#E8F5E8" Padding="25">
                 <Grid ColumnDefinitions="*,Auto" ColumnSpacing="20">
                     <VerticalStackLayout>
                         <Label Text="🔥 Current Streak" 
@@ -71,8 +65,8 @@
                        Margin="0,0,0,10"/>
                 
                 <CollectionView x:Name="TopBreathingView" 
-                               HeightRequest="150"
-                               ItemSizingStrategy="MeasureFirstItem">
+                                HeightRequest="150"
+                                ItemSizingStrategy="MeasureFirstItem">
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
                             <Border BackgroundColor="#E3F2FD" 
@@ -82,7 +76,6 @@
                                     Padding="15" 
                                     Margin="5">
                                 <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
-                                   
                                     <Label Grid.Column="0" 
                                            Text="{Binding Rank}" 
                                            FontSize="20" 
@@ -117,8 +110,8 @@
                        Margin="0,0,0,10"/>
                 
                 <CollectionView x:Name="TopAudioView" 
-                               HeightRequest="150"
-                               ItemSizingStrategy="MeasureFirstItem">
+                                HeightRequest="150"
+                                ItemSizingStrategy="MeasureFirstItem">
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
                             <Border BackgroundColor="#FFF3E0" 
@@ -128,7 +121,6 @@
                                     Padding="15" 
                                     Margin="5">
                                 <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
-                                  
                                     <Label Grid.Column="0" 
                                            Text="{Binding Rank}" 
                                            FontSize="20" 
