@@ -47,6 +47,7 @@ namespace Drift_Dragon.BusinessLogic
             }
             catch
             {
+                // optional: log
             }
         }
 
@@ -60,6 +61,31 @@ namespace Drift_Dragon.BusinessLogic
                 Reflection = reflection
             });
 
+            await SaveAsync();
+        }
+
+        // Edit existing entry
+        public async Task UpdateEntryAsync(MoodJournal entry)
+        {
+            var existing = _journals.FirstOrDefault(j => j.MoodJournalID == entry.MoodJournalID);
+            if (existing == null)
+                return;
+
+            existing.Mood = entry.Mood;
+            existing.Reflection = entry.Reflection;
+            // keep Date as original
+
+            await SaveAsync();
+        }
+
+        // NEW: delete by id
+        public async Task DeleteEntryAsync(int moodJournalId)
+        {
+            var existing = _journals.FirstOrDefault(j => j.MoodJournalID == moodJournalId);
+            if (existing == null)
+                return;
+
+            _journals.Remove(existing);
             await SaveAsync();
         }
 
