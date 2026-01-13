@@ -14,7 +14,9 @@ namespace Drift_Dragon.BusinessLogic
         {
             var data = await JsonDataService.LoadJsonAsync<List<RelaxingAudio>>("audio.json");
             if (data != null)
+            {
                 _audios = data;
+            }
 
             _ = LoadUsageAsync();
         }
@@ -34,7 +36,9 @@ namespace Drift_Dragon.BusinessLogic
 
                 _usageCounts.Clear();
                 foreach (var kvp in data)
+                {
                     _usageCounts[kvp.Key] = kvp.Value;
+                }
             }
             catch
             {
@@ -54,41 +58,96 @@ namespace Drift_Dragon.BusinessLogic
             }
         }
 
-        public Task<List<RelaxingAudio>> GetAllAsync() =>
-            Task.FromResult(_audios.ToList());
+        public Task<List<RelaxingAudio>> GetAllAsync()
+        {
+            var copy = new List<RelaxingAudio>();
+            foreach (var a in _audios)
+            {
+                copy.Add(a);
+            }
+            return Task.FromResult(copy);
+        }
 
         public Task<RelaxingAudio?> GetByIdAsync(int id)
         {
-            var audio = _audios.FirstOrDefault(a => a.RelaxingAudioID == id);
-            return Task.FromResult(audio);
+            RelaxingAudio? found = null;
+            foreach (var a in _audios)
+            {
+                if (a.RelaxingAudioID == id)
+                {
+                    found = a;
+                    break;
+                }
+            }
+            return Task.FromResult(found);
         }
 
         public Task<List<RelaxingAudio>> GetByCategoryAsync(string category)
         {
-            var filtered = _audios
-                .Where(a => string.Equals(a.Category, category, StringComparison.OrdinalIgnoreCase))
-                .ToList();
-
-            return Task.FromResult(filtered);
+            var result = new List<RelaxingAudio>();
+            foreach (var a in _audios)
+            {
+                if (a.Category != null && a.Category.ToLower() == category.ToLower())
+                {
+                    result.Add(a);
+                }
+            }
+            return Task.FromResult(result);
         }
 
         public async Task IncrementUsageAsync(int audioId)
         {
-            _usageCounts[audioId] = _usageCounts.TryGetValue(audioId, out var c) ? c + 1 : 1;
+            if (_usageCounts.ContainsKey(audioId))
+            {
+                _usageCounts[audioId] = _usageCounts[audioId] + 1;
+            }
+            else
+            {
+                _usageCounts[audioId] = 1;
+            }
+
             await SaveUsageAsync();
         }
 
-        public int GetUsage(int audioId) =>
-            _usageCounts.TryGetValue(audioId, out var c) ? c : 0;
+        public int GetUsage(int audioId)
+        {
+            if (_usageCounts.ContainsKey(audioId))
+                return _usageCounts[audioId];
+
+            return 0;
+        }
 
         public Task<List<RelaxingAudio>> GetTopUsedAsync(int count = 5)
         {
-            var ordered = _audios
-                .OrderByDescending(a => GetUsage(a.RelaxingAudioID))
-                .Take(count)
-                .ToList();
+            var ordered = new List<RelaxingAudio>();
+            foreach (var a in _audios)
+            {
+                ordered.Add(a);
+            }
 
-            return Task.FromResult(ordered);
+            for (int i = 0; i < ordered.Count - 1; i++)
+            {
+                for (int j = i + 1; j < ordered.Count; j++)
+                {
+                    int usageI = GetUsage(ordered[i].RelaxingAudioID);
+                    int usageJ = GetUsage(ordered[j].RelaxingAudioID);
+
+                    if (usageJ > usageI)
+                    {
+                        var temp = ordered[i];
+                        ordered[i] = ordered[j];
+                        ordered[j] = temp;
+                    }
+                }
+            }
+
+            var result = new List<RelaxingAudio>();
+            for (int i = 0; i < ordered.Count && i < count; i++)
+            {
+                result.Add(ordered[i]);
+            }
+
+            return Task.FromResult(result);
         }
     }
 }

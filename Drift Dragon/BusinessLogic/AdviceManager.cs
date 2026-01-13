@@ -17,28 +17,42 @@ namespace Drift_Dragon.BusinessLogic
                 _advices = data;
         }
 
-        public Task<List<Advice>> GetAllAsync() => Task.FromResult(_advices);
-        
-        public Task<Advice?> GetRandomAsync() 
-        { 
-            if (_advices.Count == 0) return Task.FromResult<Advice?>(null);
-            var index = _random.Next(_advices.Count);
-            return Task.FromResult(_advices[index]);
+        public Task<List<Advice>> GetAllAsync()
+        {
+            var copy = new List<Advice>();
+            foreach (var a in _advices)
+            {
+                copy.Add(a);
+            }
+            return Task.FromResult(copy);
         }
 
-        public Task<List<Advice>> GetStarredAsync() 
+        public Task<Advice?> GetRandomAsync()
+        {
+            if (_advices.Count == 0)
+                return Task.FromResult<Advice?>(null);
+
+            int index = _random.Next(_advices.Count);
+            return Task.FromResult<Advice?>(_advices[index]);
+        }
+
+        public Task<List<Advice>> GetStarredAsync()
         {
             var starred = new List<Advice>();
             foreach (var advice in _advices)
             {
+                bool isStarred = false;
                 foreach (var id in _starredAdviceIds)
                 {
                     if (advice.adviceID == id)
                     {
-                        starred.Add(advice);
+                        isStarred = true;
                         break;
                     }
                 }
+
+                if (isStarred)
+                    starred.Add(advice);
             }
             return Task.FromResult(starred);
         }
@@ -53,15 +67,17 @@ namespace Drift_Dragon.BusinessLogic
                     return Task.FromResult(true);
                 }
             }
+
             _starredAdviceIds.Add(adviceId);
             return Task.FromResult(true);
         }
 
-        public Task<bool> IsStarredAsync(int adviceId) 
+        public Task<bool> IsStarredAsync(int adviceId)
         {
             foreach (var id in _starredAdviceIds)
             {
-                if (id == adviceId) return Task.FromResult(true);
+                if (id == adviceId)
+                    return Task.FromResult(true);
             }
             return Task.FromResult(false);
         }

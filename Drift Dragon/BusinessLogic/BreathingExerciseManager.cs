@@ -18,13 +18,15 @@ namespace Drift_Dragon.BusinessLogic
         public async Task LoadFromJsonAsync()
         {
             var data = await JsonDataService.LoadJsonAsync<List<BreathingExercise>>("breathingexercise.json");
-           
+            if (data == null)
+                return;
 
             _exercises.Clear();
-            _exercises.AddRange(data);
-            
+            foreach (var e in data)
+            {
+                _exercises.Add(e);
+            }
         }
-
 
         private async Task LoadUsageAsync()
         {
@@ -41,7 +43,9 @@ namespace Drift_Dragon.BusinessLogic
 
                 _usageCounts.Clear();
                 foreach (var kvp in data)
+                {
                     _usageCounts[kvp.Key] = kvp.Value;
+                }
             }
             catch
             {
@@ -61,32 +65,84 @@ namespace Drift_Dragon.BusinessLogic
             }
         }
 
-        public Task<List<BreathingExercise>> GetAllAsync() =>
-            Task.FromResult(_exercises.ToList());
+        public Task<List<BreathingExercise>> GetAllAsync()
+        {
+            var copy = new List<BreathingExercise>();
+            foreach (var e in _exercises)
+            {
+                copy.Add(e);
+            }
+            return Task.FromResult(copy);
+        }
 
         public Task<BreathingExercise?> GetByIdAsync(int id)
         {
-            var exercise = _exercises.FirstOrDefault(e => e.BreathingExerciseID == id);
-            return Task.FromResult(exercise);
+            BreathingExercise? found = null;
+            foreach (var e in _exercises)
+            {
+                if (e.BreathingExerciseID == id)
+                {
+                    found = e;
+                    break;
+                }
+            }
+            return Task.FromResult(found);
         }
 
         public async Task IncrementUsageAsync(int exerciseId)
         {
-            _usageCounts[exerciseId] = _usageCounts.TryGetValue(exerciseId, out var c) ? c + 1 : 1;
+            if (_usageCounts.ContainsKey(exerciseId))
+            {
+                _usageCounts[exerciseId] = _usageCounts[exerciseId] + 1;
+            }
+            else
+            {
+                _usageCounts[exerciseId] = 1;
+            }
+
             await SaveUsageAsync();
         }
 
-        public int GetUsage(int exerciseId) =>
-            _usageCounts.TryGetValue(exerciseId, out var c) ? c : 0;
+        public int GetUsage(int exerciseId)
+        {
+            if (_usageCounts.ContainsKey(exerciseId))
+                return _usageCounts[exerciseId];
+
+            return 0;
+        }
 
         public Task<List<BreathingExercise>> GetTopUsedAsync(int count = 5)
         {
-            var ordered = _exercises
-                .OrderByDescending(e => GetUsage(e.BreathingExerciseID))
-                .Take(count)
-                .ToList();
+            // Simple bubble-sort style ordering by usage (no LINQ)
+            var ordered = new List<BreathingExercise>();
+            foreach (var e in _exercises)
+            {
+                ordered.Add(e);
+            }
 
-            return Task.FromResult(ordered);
+            for (int i = 0; i < ordered.Count - 1; i++)
+            {
+                for (int j = i + 1; j < ordered.Count; j++)
+                {
+                    int usageI = GetUsage(ordered[i].BreathingExerciseID);
+                    int usageJ = GetUsage(ordered[j].BreathingExerciseID);
+
+                    if (usageJ > usageI)
+                    {
+                        var temp = ordered[i];
+                        ordered[i] = ordered[j];
+                        ordered[j] = temp;
+                    }
+                }
+            }
+
+            var result = new List<BreathingExercise>();
+            for (int i = 0; i < ordered.Count && i < count; i++)
+            {
+                result.Add(ordered[i]);
+            }
+
+            return Task.FromResult(result);
         }
     }
 }

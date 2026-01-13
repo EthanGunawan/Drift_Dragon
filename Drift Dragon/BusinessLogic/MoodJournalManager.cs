@@ -29,11 +29,17 @@ namespace Drift_Dragon.BusinessLogic
                     return;
 
                 _journals = data;
-                _nextId = _journals.Any() ? _journals.Max(j => j.MoodJournalID) + 1 : 1;
+
+                int maxId = 0;
+                foreach (var j in _journals)
+                {
+                    if (j.MoodJournalID > maxId)
+                        maxId = j.MoodJournalID;
+                }
+                _nextId = maxId + 1;
             }
             catch
             {
-                // optional: log
             }
         }
 
@@ -47,41 +53,56 @@ namespace Drift_Dragon.BusinessLogic
             }
             catch
             {
-                // optional: log
             }
         }
 
         public async Task AddEntryAsync(Mood mood, string reflection = "")
         {
-            _journals.Add(new MoodJournal
+            var entry = new MoodJournal
             {
                 MoodJournalID = _nextId++,
                 Date = DateTime.Now.Date,
                 Mood = mood,
                 Reflection = reflection
-            });
+            };
 
+            _journals.Add(entry);
             await SaveAsync();
         }
 
-        // Edit existing entry
         public async Task UpdateEntryAsync(MoodJournal entry)
         {
-            var existing = _journals.FirstOrDefault(j => j.MoodJournalID == entry.MoodJournalID);
+            MoodJournal? existing = null;
+            foreach (var j in _journals)
+            {
+                if (j.MoodJournalID == entry.MoodJournalID)
+                {
+                    existing = j;
+                    break;
+                }
+            }
+
             if (existing == null)
                 return;
 
             existing.Mood = entry.Mood;
             existing.Reflection = entry.Reflection;
-            // keep Date as original
 
             await SaveAsync();
         }
 
-        // NEW: delete by id
         public async Task DeleteEntryAsync(int moodJournalId)
         {
-            var existing = _journals.FirstOrDefault(j => j.MoodJournalID == moodJournalId);
+            MoodJournal? existing = null;
+            foreach (var j in _journals)
+            {
+                if (j.MoodJournalID == moodJournalId)
+                {
+                    existing = j;
+                    break;
+                }
+            }
+
             if (existing == null)
                 return;
 
@@ -91,23 +112,57 @@ namespace Drift_Dragon.BusinessLogic
 
         public Task<List<MoodJournal>> GetRecentAsync(int count = 10)
         {
-            var recent = _journals
-                .OrderByDescending(j => j.Date)
-                .Take(count)
-                .ToList();
+            // Sort by Date descending using simple sort
+            var ordered = new List<MoodJournal>();
+            foreach (var j in _journals)
+            {
+                ordered.Add(j);
+            }
 
-            return Task.FromResult(recent);
+            for (int i = 0; i < ordered.Count - 1; i++)
+            {
+                for (int j = i + 1; j < ordered.Count; j++)
+                {
+                    if (ordered[j].Date > ordered[i].Date)
+                    {
+                        var temp = ordered[i];
+                        ordered[i] = ordered[j];
+                        ordered[j] = temp;
+                    }
+                }
+            }
+
+            var result = new List<MoodJournal>();
+            for (int i = 0; i < ordered.Count && i < count; i++)
+            {
+                result.Add(ordered[i]);
+            }
+
+            return Task.FromResult(result);
         }
 
-        public Task<List<MoodJournal>> GetAllAsync() =>
-            Task.FromResult(_journals);
+        public Task<List<MoodJournal>> GetAllAsync()
+        {
+            var copy = new List<MoodJournal>();
+            foreach (var j in _journals)
+            {
+                copy.Add(j);
+            }
+            return Task.FromResult(copy);
+        }
 
         public Task<double> GetAverageMoodAsync()
         {
             if (_journals.Count == 0)
-                return Task.FromResult(2.0); // neutral baseline
+                return Task.FromResult(2.0);
 
-            var avg = _journals.Average(j => (int)j.Mood);
+            double sum = 0;
+            foreach (var j in _journals)
+            {
+                sum += (int)j.Mood;
+            }
+
+            double avg = sum / _journals.Count;
             return Task.FromResult(avg);
         }
 
@@ -116,16 +171,42 @@ namespace Drift_Dragon.BusinessLogic
             if (_journals.Count == 0)
                 return Task.FromResult(0);
 
-            var days = _journals
-                .Select(j => j.Date.Date)
-                .Distinct()
-                .OrderByDescending(d => d)
-                .ToList();
+            // Distinct dates
+            var dates = new List<DateTime>();
+            foreach (var j in _journals)
+            {
+                var d = j.Date.Date;
+                bool exists = false;
+                foreach (var existing in dates)
+                {
+                    if (existing == d)
+                    {
+                        exists = true;
+                        break;
+                    }
+                }
+                if (!exists)
+                    dates.Add(d);
+            }
 
-            var streak = 0;
-            var today = DateTime.Today;
+            // Sort dates descending
+            for (int i = 0; i < dates.Count - 1; i++)
+            {
+                for (int j = i + 1; j < dates.Count; j++)
+                {
+                    if (dates[j] > dates[i])
+                    {
+                        var temp = dates[i];
+                        dates[i] = dates[j];
+                        dates[j] = temp;
+                    }
+                }
+            }
 
-            foreach (var day in days)
+            int streak = 0;
+            DateTime today = DateTime.Today;
+
+            foreach (var day in dates)
             {
                 if (day == today.AddDays(-streak))
                     streak++;
