@@ -57,51 +57,22 @@ namespace Drift_Dragon
 
         private async void OnStartExercise(object sender, EventArgs e)
         {
-            try
-            {
-                if (_exercises == null || _exercises.Count == 0)
-                {
-                    await DisplayAlert("No exercises", "Exercises are not available.", "OK");
-                    return;
-                }
-
-                int pos = ExercisesCarousel.Position;
-                if (pos < 0 || pos >= _exercises.Count)
-                {
-                    await DisplayAlert("Error", "Cannot find this exercise.", "OK");
-                    return;
-                }
-
-                var exercise = _exercises[pos];
-
-                // Track usage
-                await _exerciseManager.IncrementUsageAsync(exercise.BreathingExerciseID);
-
-                // Vibrate phone
-                try
-                {
-                    if (Vibration.Default.IsSupported)
-                        Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(300));
-                }
-                catch
-                {
-                    // ignore vibration failures
-                }
-
-                // Screen color animation (only if page is still visible)
-                if (this.Window != null)
-                    await AnimateBreathingColors();
-
-                await DisplayAlert("🌟 BREATHING COMPLETE!",
-                    "You just mastered:\n🫁 " + exercise.Name, "Next Exercise!");
-            }
-            catch (Exception ex)
-            {
-                await DisplayAlert("Exercise error", ex.ToString(), "OK");
-            }
+            var exercise = _exercises[ExercisesCarousel.Position];
+    
+            // Track usage
+            await _exerciseManager.IncrementUsageAsync(exercise.BreathingExerciseID);
+    
+            // 1. Vibrate phone (grab attention!)
+            if (Vibration.Default.IsSupported)
+                Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(300));
+    
+            // 2. Screen flashes breathing colors (immersive!)
+            await AnimateBreathingColors();
+    
+            // 3. Success confetti effect
+            await DisplayAlert("🌟 BREATHING COMPLETE!", 
+                $"You just mastered:\n🫁 {exercise.Name}", "Next Exercise!");
         }
-
-
 
         private async Task AnimateBreathingColors()
         {

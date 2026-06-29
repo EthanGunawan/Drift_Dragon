@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Drift_Dragon.BusinessLogic;
+using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 using SkiaSharp;
 using SkiaSharp.Views.Maui;
@@ -14,8 +14,6 @@ namespace Drift_Dragon
         private readonly BreathingExerciseManager _exerciseManager = new();
         private readonly RelaxingAudioManager _audioManager = new();
 
-        private List<MoodJournal> _allJournals = new();
-
         public ProgressDashboardPage()
         {
             InitializeComponent();
@@ -24,80 +22,68 @@ namespace Drift_Dragon
         protected override async void OnAppearing()
         {
             base.OnAppearing();
-
-            try
-            {
-                await LoadDashboardData();
-            }
-            catch (Exception ex)
-            {
-                await DisplayAlert("OnAppearing error", ex.ToString(), "OK");
-            }
+            await LoadDashboardData();
         }
 
         private async Task LoadDashboardData()
         {
             try
             {
-                // Load JSON-based data
+                // Load main data (no Task.WhenAll to keep it simple)
                 await _exerciseManager.LoadFromJsonAsync();
                 await _audioManager.LoadFromJsonAsync();
 
-                // Load journals once
-                var journals = await _moodManager.GetAllAsync();
-                if (journals == null)
-                    _allJournals = new List<MoodJournal>();
-                else
-                    _allJournals = journals;
-
-                // Streak (guard exceptions)
-                int streak = 0;
-                try
-                {
-                    streak = await _moodManager.GetCurrentStreakAsync();
-                }
-                catch
-                {
-                    streak = 0;
-                }
+                // Update streak
+                int streak = await _moodManager.GetCurrentStreakAsync();
                 StreakLabel.Text = streak.ToString() + " days 🔥";
 
-                // Mood label + graph
-                UpdateMoodTrendLabel();
-                MoodTrendGraph.InvalidateSurface();
+                // Update mood trend label + graph
+                await UpdateMoodTrendGraph();
 
-                // Top breathing + audio
+                // Update top breathing exercises
                 await UpdateTopBreathing();
+
+                // Update top audio
                 await UpdateTopAudio();
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Dashboard load error", ex.ToString(), "OK");
+                await DisplayAlert("Error", "Failed to load dashboard: " + ex.Message, "OK");
             }
         }
 
-        private void UpdateMoodTrendLabel()
+        private async Task UpdateMoodTrendGraph()
         {
+            var journals = await _moodManager.GetAllAsync();
+
+            // Filter last 7 days (today and previous 6)
+            DateTime weekAgo = DateTime.Today.AddDays(-6);
+
+            // Calculate average mood for all journals
             double avgMood = 0;
-            if (_allJournals.Count > 0)
+            if (journals.Count > 0)
             {
                 double sum = 0;
-                foreach (var j in _allJournals)
+                foreach (var j in journals)
                 {
                     sum += (int)j.Mood;
                 }
-                avgMood = sum / _allJournals.Count;
+                avgMood = sum / journals.Count;
             }
-
             MoodTrendLabel.Text = "Weekly avg: " + avgMood.ToString("F1") + "/4";
+
+            // Just invalidate; drawing happens in OnMoodGraphDraw
+            MoodTrendGraph.Invalidate();
         }
 
-        private List<float> GetWeeklyMoodValues()
+        private async Task<List<float>> GetWeeklyMoodValuesAsync()
         {
+            var journals = await _moodManager.GetAllAsync();
             DateTime weekAgo = DateTime.Today.AddDays(-6);
 
+            // Filter last 7 days and order by date (simple sort)
             var filtered = new List<MoodJournal>();
-            foreach (var j in _allJournals)
+            foreach (var j in journals)
             {
                 if (j.Date >= weekAgo)
                 {
@@ -105,7 +91,7 @@ namespace Drift_Dragon
                 }
             }
 
-            // sort by date ascending
+            // Sort filtered by Date ascending
             for (int i = 0; i < filtered.Count - 1; i++)
             {
                 for (int j = i + 1; j < filtered.Count; j++)
@@ -119,6 +105,7 @@ namespace Drift_Dragon
                 }
             }
 
+            // Convert to list of float mood values
             var result = new List<float>();
             foreach (var j in filtered)
             {
@@ -128,99 +115,82 @@ namespace Drift_Dragon
             return result;
         }
 
-        private void OnMoodGraphDraw(object sender, SKPaintSurfaceEventArgs e)
+        private async void OnMoodGraphDraw(object sender, SKPaintSurfaceEventArgs e)
         {
-            try
+            var surface = e.Surface;
+            var canvas = surface.Canvas;
+            canvas.Clear(SKColors.White);
+
+            // Get weekly data (no LINQ)
+            var weeklyData = await GetWeeklyMoodValuesAsync();
+            if (weeklyData.Count == 0)
+                return;
+
+            var info = e.Info;
+            float width = info.Width;
+            float height = info.Height;
+            float padding = 40f;
+
+            float maxMood = 4f;
+            float graphHeight = height - padding * 2;
+            float graphWidth = width - padding * 2;
+
+            // Grid lines
+            using (var gridPaint = new SKPaint { Color = SKColors.LightGray, StrokeWidth = 1, IsStroke = true })
             {
-                var surface = e.Surface;
-                var canvas = surface.Canvas;
-                canvas.Clear(SKColors.White);
-
-                var weeklyData = GetWeeklyMoodValues();
-                if (weeklyData.Count == 0)
-                    return;
-
-                var info = e.Info;
-                float width = info.Width;
-                float height = info.Height;
-                float padding = 40f;
-
-                float maxMood = 4f;
-                float graphHeight = height - padding * 2;
-                float graphWidth = width - padding * 2;
-
-                // grid
-                using (var gridPaint = new SKPaint
+                for (int i = 0; i <= 4; i++)
                 {
-                    Color = SKColors.LightGray,
-                    StrokeWidth = 1,
-                    IsStroke = true
-                })
-                {
-                    for (int i = 0; i <= 4; i++)
-                    {
-                        float y = padding + (graphHeight * i / 4f);
-                        canvas.DrawLine(padding, y, width - padding, y, gridPaint);
-                    }
-                }
-
-                // line
-                using (var linePaint = new SKPaint
-                {
-                    Color = SKColor.Parse("#4A90E2"),
-                    StrokeWidth = 4,
-                    StrokeCap = SKStrokeCap.Round,
-                    IsStroke = true
-                })
-                {
-                    for (int i = 0; i < weeklyData.Count - 1; i++)
-                    {
-                        float x1 = padding + (graphWidth * i / (weeklyData.Count - 1));
-                        float y1 = height - padding - (weeklyData[i] / maxMood * graphHeight);
-                        float x2 = padding + (graphWidth * (i + 1) / (weeklyData.Count - 1));
-                        float y2 = height - padding - (weeklyData[i + 1] / maxMood * graphHeight);
-
-                        canvas.DrawLine(x1, y1, x2, y2, linePaint);
-                    }
-                }
-
-                // points
-                using (var pointPaint = new SKPaint
-                {
-                    Color = SKColor.Parse("#4A90E2"),
-                    Style = SKPaintStyle.Fill
-                })
-                {
-                    for (int i = 0; i < weeklyData.Count; i++)
-                    {
-                        float value = weeklyData[i];
-                        float x = padding + (graphWidth * i / (weeklyData.Count - 1));
-                        float y = height - padding - (value / maxMood * graphHeight);
-                        canvas.DrawCircle(x, y, 8f, pointPaint);
-                    }
+                    float y = padding + (graphHeight * i / 4f);
+                    canvas.DrawLine(padding, y, width - padding, y, gridPaint);
                 }
             }
-            catch
+
+            // Trend line
+            using (var linePaint = new SKPaint
             {
-                // swallow draw errors so they don't crash the page
+                Color = SKColor.Parse("#4A90E2"),
+                StrokeWidth = 4,
+                IsStroke = true,
+                StrokeCap = SKStrokeCap.Round
+            })
+            {
+                for (int i = 0; i < weeklyData.Count - 1; i++)
+                {
+                    float x1 = padding + (graphWidth * i / (weeklyData.Count - 1));
+                    float y1 = height - padding - (weeklyData[i] / maxMood * graphHeight);
+                    float x2 = padding + (graphWidth * (i + 1) / (weeklyData.Count - 1));
+                    float y2 = height - padding - (weeklyData[i + 1] / maxMood * graphHeight);
+
+                    canvas.DrawLine(x1, y1, x2, y2, linePaint);
+                }
+            }
+
+            // Data points
+            using (var pointPaint = new SKPaint { Color = SKColor.Parse("#4A90E2"), Style = SKPaintStyle.Fill })
+            {
+                for (int i = 0; i < weeklyData.Count; i++)
+                {
+                    float value = weeklyData[i];
+                    float x = padding + (graphWidth * i / (weeklyData.Count - 1));
+                    float y = height - padding - (value / maxMood * graphHeight);
+                    canvas.DrawCircle(x, y, 8f, pointPaint);
+                }
             }
         }
 
         private async Task UpdateTopBreathing()
         {
             var topExercises = await _exerciseManager.GetTopUsedAsync(5);
-            if (topExercises == null)
-                topExercises = new List<BreathingExercise>();
 
+           
             var ranked = new List<object>();
             int index = 1;
             foreach (var ex in topExercises)
             {
-                string name = ex != null ? ex.Name : "Unknown";
                 ranked.Add(new
                 {
                     Rank = index,
-                    Name = name,
+                    Name = ex.Name,
                     UsageCount = "Used recently"
                 });
                 index++;
@@ -232,19 +202,17 @@ namespace Drift_Dragon
         private async Task UpdateTopAudio()
         {
             var audios = await _audioManager.GetAllAsync();
-            if (audios == null)
-                audios = new List<RelaxingAudio>();
 
+            // Take first 5 items manually
             var ranked = new List<object>();
             int index = 1;
             for (int i = 0; i < audios.Count && i < 5; i++)
             {
                 var audio = audios[i];
-                string title = audio != null ? audio.Title : "Unknown";
                 ranked.Add(new
                 {
                     Rank = index,
-                    Title = title,
+                    Title = audio.Title,
                     UsageCount = "Popular"
                 });
                 index++;
